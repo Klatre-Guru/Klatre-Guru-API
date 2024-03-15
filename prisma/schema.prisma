@@ -7,21 +7,117 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Article {
-  id          Int      @id @default(autoincrement())
-  title       String   @unique
-  description String?
-  body        String
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
 model Users {
   id       Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   email    String   @unique
-  name     String?
-  password String?
+  name     String   @unique
+  password String
+  userSettings UsersSettings[]
+  boulderAscents BoulderAscents[]
+  boulderRating BoulderRating[]
+  locationFavorites LocationFavorites[]
+  boulderFavorites BoulderFavorites[]
 }
+
+model UsersSettings {
+  id       Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name     String
+  userId   Int
+  user     Users    @relation(fields: [userId], references: [id])
+
+}
+
+model Locations {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @unique
+  description String?
+  longitude   Float
+  latitude    Float
+  boulderRocks BoulderRocks[]
+  locationFavorites LocationFavorites[]
+}
+
+model LocationFavorites {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        Users    @relation(fields: [userId], references: [id])
+  userId      Int
+  location    Locations @relation(fields: [locationId], references: [id])
+  locationId  Int
+}
+
+model BoulderRocks {
+  id          Int      @id @default(autoincrement())
+  location    Locations @relation(fields: [locationId], references: [id])
+  locationId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @unique
+  description String?
+  latitude    Float
+  longitude   Float
+  image       String?
+  boulders    Boulders[]
+}
+
+model Boulders {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @unique
+  description String?
+  grade       String
+  setter      String
+  image       String
+  sitStart    Boolean
+  norwegianRating    Boolean
+  boulderRocks BoulderRocks @relation(fields: [boulderRockId], references: [id])
+  boulderRockId Int
+  boulderAscents BoulderAscents[]
+  boulderRating BoulderRating[]
+  boulderFavorites BoulderFavorites[]
+}
+
+model BoulderAscents {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  grade       String
+  user        Users    @relation(fields: [userId], references: [id])
+  userId      Int
+  boulder     Boulders @relation(fields: [boulderId], references: [id])
+  boulderId   Int
+}
+
+model BoulderRating {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  rating      Int
+  user        Users    @relation(fields: [userId], references: [id])
+  userId      Int
+  boulder     Boulders @relation(fields: [boulderId], references: [id])
+  boulderId   Int
+}
+
+model BoulderFavorites {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        Users    @relation(fields: [userId], references: [id])
+  userId      Int
+  boulder     Boulders @relation(fields: [boulderId], references: [id])
+  boulderId   Int
+}
+
+// Todo: Add all the same tables for sport climbing that boulders have, and look into gyms aswell
+//       look into adding a forum aswell maybe? and a chat? then try to see if you can implement 
+//       climbing clubs aswell and such and their gyms, and make it so a user can become a member 
+//       of a club and then get access private chats and forums and such? 
